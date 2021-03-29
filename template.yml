@@ -1,8 +1,57 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  Cloud Resume App
+  Cloud Resume Application
 Resources:
+
+  MyWebsite:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: PublicRead
+      WebsiteConfiguration:
+        IndexDocument: index.html
+      BucketName: ${{ secrets.AWS_S3_BUCKET }}
+
+  myDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Origins:
+        - DomainName: ${{ secrets.DOMAIN_NAME }}
+          Id: myS3Origin
+          S3OriginConfig:
+            OriginAccessIdentity: !Join [ "", [ "origin-access-identity/cloudfront/", !Ref cloudfrontoriginaccessidentity ] ]
+        Enabled: 'true'
+        Comment: Some comment
+        DefaultRootObject: index.html
+        Aliases:
+        - yatidole.com
+        - www.yatidole.com
+        DefaultCacheBehavior:
+          AllowedMethods:
+          - GET
+          - HEAD
+          - OPTIONS
+          TargetOriginId: S3-yatidole.com
+          ForwardedValues:
+            QueryString: 'false'
+            Cookies:
+              Forward: none
+          ViewerProtocolPolicy: redirect-to-https
+          DefaultTTL: 60
+          MaxTTL: 120
+          MinTTL: 30
+        PriceClass: PriceClass_200
+        ViewerCertificate:
+           AcmCertificateArn: ${{ secrets.ARN_CERTIFICATE }}
+           SslSupportMethod: sni-only
+
+  cloudfrontoriginaccessidentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig: ${{ secrets.CLOUDFRONT_OAI }}
+        Comment: This is origin access identity
+
   myDynamoDBTable: 
     Type: AWS::DynamoDB::Table
     Properties: 
@@ -35,6 +84,7 @@ Resources:
       Throttle:
        BurstLimit: 100
        RateLimit: 50
+
   CloudResumeFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -51,6 +101,7 @@ Resources:
             Path: /getVisitorCounter
             Method: get
             RestApiId: !Ref ApiGatewayApi
+
   MyDomainName:
    Type: 'AWS::ApiGateway::DomainName'
    Properties:
@@ -58,61 +109,25 @@ Resources:
     EndpointConfiguration:
      Types: 
       - REGIONAL
-    RegionalCertificateArn:  arn:aws:acm:us-east-1:969439934716:certificate/121faf64-f90c-4ac7-8407-90d5db772794
+    RegionalCertificateArn:  ${{ secrets.ARN_CERTIFICATE }}
 
   myMapping:
    Type: 'AWS::ApiGateway::BasePathMapping'
    Properties:
      DomainName: !Ref MyDomainName
      RestApiId: !Ref ApiGatewayApi
+  
   apiDNS:
     Type: AWS::Route53::RecordSetGroup
     Properties:
-      HostedZoneId: Z04169603JK378C2PE955
+      HostedZoneId: ${{ secrets.HOSTED_ZONE_ID }}
       RecordSets:
         - Name: api.yatidole.com
           Type: A
           AliasTarget:
             HostedZoneId: !GetAtt MyDomainName.RegionalHostedZoneId
-            DNSName: !GetAtt MyDomainName.RegionalDomainName          
-  cloudfrontoriginaccessidentity:
-    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
-    Properties:
-      CloudFrontOriginAccessIdentityConfig:
-        Comment: This is origin access identity
-  myDistribution:
-    Type: AWS::CloudFront::Distribution
-    Properties:
-      DistributionConfig:
-        Origins:
-        - DomainName: yatidole.com.s3-website-us-east-1.amazonaws.com
-          Id: myS3Origin
-          S3OriginConfig:
-            OriginAccessIdentity: !Join [ "", [ "origin-access-identity/cloudfront/", !Ref cloudfrontoriginaccessidentity ] ]
-        Enabled: 'true'
-        Comment: Some comment
-        DefaultRootObject: index.html
-        Aliases:
-        - yatidole.com
-        - www.yatidole.com
-        DefaultCacheBehavior:
-          AllowedMethods:
-          - GET
-          - HEAD
-          - OPTIONS
-          TargetOriginId: S3-yatidole.com
-          ForwardedValues:
-            QueryString: 'false'
-            Cookies:
-              Forward: none
-          ViewerProtocolPolicy: redirect-to-https
-          DefaultTTL: 60
-          MaxTTL: 120
-          MinTTL: 30
-        PriceClass: PriceClass_200
-        ViewerCertificate:
-           AcmCertificateArn: arn:aws:acm:us-east-1:969439934716:certificate/121faf64-f90c-4ac7-8407-90d5db772794
-           SslSupportMethod: sni-only
+            DNSName: !GetAtt MyDomainName.RegionalDomainName    
+
   CFDNSOne:
     Type: AWS::Route53::RecordSetGroup
     Properties:
