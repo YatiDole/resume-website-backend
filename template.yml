@@ -32,7 +32,7 @@ Resources:
           - GET
           - HEAD
           - OPTIONS
-          TargetOriginId: S3-yatidole.com
+          TargetOriginId: mys3origin
           ForwardedValues:
             QueryString: 'false'
             Cookies:
