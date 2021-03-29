@@ -48,7 +48,7 @@ Resources:
 
     myDynamoDBTable: 
     Type: AWS::DynamoDB::Table
-    Properties: 
+    Properties:
       AttributeDefinitions: 
         - 
           AttributeName: "pagename"
@@ -68,16 +68,18 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
-    Auth:
-     UsagePlan:
-      CreateUsagePlan: PER_API
-      Description: Usage plan for this API
-      Quota:
-       Limit: 500
-       Period: MONTH
-      Throttle:
-       BurstLimit: 100
-       RateLimit: 50
+      Cors:
+        AllowMethods: "'OPTIONS,POST,GET,PUT,DELETE'"
+        AllowHeaders: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token,Z-Client-Timezone'"
+        AllowOrigin: "''"
+        MaxAge: "'3600'"
+      GatewayResponses:
+        DEFAULT_4xx:
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Methods: "'OPTIONS,POST,GET,PUT,DELETE'"
+              Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+              Access-Control-Allow-Origin: "'*'"
 
   CloudResumeFunction:
     Type: AWS::Serverless::Function
