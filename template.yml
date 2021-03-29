@@ -46,13 +46,7 @@ Resources:
            AcmCertificateArn: ${{ secrets.ARN_CERTIFICATE }}
            SslSupportMethod: sni-only
 
-  cloudfrontoriginaccessidentity:
-    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
-    Properties:
-      CloudFrontOriginAccessIdentityConfig: ${{ secrets.CLOUDFRONT_OAI }}
-        Comment: This is origin access identity
-
-  myDynamoDBTable: 
+    myDynamoDBTable: 
     Type: AWS::DynamoDB::Table
     Properties: 
       AttributeDefinitions: 
@@ -116,6 +110,12 @@ Resources:
    Properties:
      DomainName: !Ref MyDomainName
      RestApiId: !Ref ApiGatewayApi
+
+  cloudfrontoriginaccessidentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig: ${{ secrets.CLOUDFRONT_OAI }}
+        Comment: This is origin access identity
   
   apiDNS:
     Type: AWS::Route53::RecordSetGroup
