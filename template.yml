@@ -115,7 +115,7 @@ Resources:
     Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
     Properties:
       CloudFrontOriginAccessIdentityConfig: ${{ secrets.CLOUDFRONT_OAI }}
-        Comment: This is origin access identity
+      Comment: This is origin access identity
   
   apiDNS:
     Type: AWS::Route53::RecordSetGroup
