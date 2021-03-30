@@ -8,7 +8,7 @@ Resources:
   CloudResumeFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: counter.lambda_handler
+      Handler: counter.getCounter
       Runtime: python3.8
       CodeUri: ./Lambda
       Events:
@@ -19,12 +19,46 @@ Resources:
             Method: get
             RestApiId: !Ref VisitorsTable
 
-  VisitorsTable: 
-    Type: AWS::DynamoDB::SimpleTable
+  myDynamoDBTable: 
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      AttributeDefinitions: 
+        - 
+          AttributeName: "pagename"
+          AttributeType: "S"
+       
+      KeySchema: 
+        - 
+          AttributeName: "pagename"
+          KeyType: "HASH"
+      
+      TableName: "visitor_counter"
+      ProvisionedThroughput: 
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
+    
+  ApiGatewayApi:
+    Type: AWS::Serverless::Api
     Properties:
-      Primary key: 
-        Name: id
-        Type: String
+      StageName: Prod
+      Cors:
+        AllowMethods: "'OPTIONS,POST,GET,PUT,DELETE'"
+        AllowHeaders: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token,Z-Client-Timezone'"
+        AllowOrigin: "''"
+        MaxAge: "'3600'"
+      GatewayResponses:
+        DEFAULT_4xx:
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Methods: "'OPTIONS,POST,GET,PUT,DELETE'"
+              Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+              Access-Control-Allow-Origin: "'*'"
+
+  cloudfrontoriginaccessidentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig: ${{ secrets.CLOUDFRONT_OAI }}
+      Comment: This is origin access identity
 
   myDistribution:
     Type: AWS::CloudFront::Distribution
@@ -60,25 +94,6 @@ Resources:
            AcmCertificateArn: ${{ secrets.ARN_CERTIFICATE }}
            SslSupportMethod: sni-only
 
-  ApiGatewayApi:
-    Type: AWS::Serverless::Api
-    Properties:
-      StageName: Prod
-      Cors:
-        AllowMethods: "'OPTIONS,POST,GET,PUT,DELETE'"
-        AllowHeaders: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token,Z-Client-Timezone'"
-        AllowOrigin: "''"
-        MaxAge: "'3600'"
-      GatewayResponses:
-        DEFAULT_4xx:
-          ResponseParameters:
-            Headers:
-              Access-Control-Allow-Methods: "'OPTIONS,POST,GET,PUT,DELETE'"
-              Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
-              Access-Control-Allow-Origin: "'*'"
-
-
-
   MyDomainName:
    Type: 'AWS::ApiGateway::DomainName'
    Properties:
@@ -93,13 +108,7 @@ Resources:
    Properties:
      DomainName: !Ref MyDomainName
      RestApiId: !Ref ApiGatewayApi
-
-  cloudfrontoriginaccessidentity:
-    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
-    Properties:
-      CloudFrontOriginAccessIdentityConfig: ${{ secrets.CLOUDFRONT_OAI }}
-      Comment: This is origin access identity
-  
+ 
   apiDNS:
     Type: AWS::Route53::RecordSetGroup
     Properties:
@@ -114,9 +123,18 @@ Resources:
   CFDNSOne:
     Type: AWS::Route53::RecordSetGroup
     Properties:
-      HostedZoneId: Z04169603JK378C2PE955
+      HostedZoneId: ${{ secrets.HOSTED_ZONE_ID }}
       RecordSets:
         - Name: yatidole.com
+          Type: A
+          AliasTarget:
+            DNSName: !GetAtt myDistribution.DomainName
+  CFDNSTwo:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneId: ${{ secrets.HOSTED_ZONE_ID }}
+      RecordSets:
+        - Name: www.yatidole.com
           Type: A
           AliasTarget:
             DNSName: !GetAtt myDistribution.DomainName
