@@ -20,6 +20,7 @@ Resources:
             Method: get
             RestApiId: !Ref ApiGatewayApi
     DependsOn: myDynamoDBTable
+
   myDynamoDBTable: 
     Type: AWS::DynamoDB::Table
     Properties: 
@@ -62,7 +63,18 @@ Resources:
     Properties:
       CloudFrontOriginAccessIdentityConfig: ${{ secrets.CLOUDFRONT_OAI }}
       Comment: This is origin access identity
-
+  
+  apiDNS:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneId: ${{ secrets.HOSTED_ZONE_ID }}
+      RecordSets:
+        - Name: api.yatidole.com
+          Type: A
+          AliasTarget:
+            HostedZoneId: !GetAtt MyDomainName.RegionalHostedZoneId
+            DNSName: !GetAtt MyDomainName.RegionalDomainName
+            
   myDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
@@ -123,12 +135,6 @@ Resources:
                   - 'dynamodb:DeleteItem'
                   - 'dynamodb:PutItem'
             Resource: "*"
-            Effect: Allow
-            Action:
-                  - 'logs:CreateLogStream'
-                  - 'logs:CreateLogGroup'
-                  - 'logs:PutLogEvents'
-            Resource: "*"
 
   MyDomainName:
    Type: 'AWS::ApiGateway::DomainName'
@@ -143,18 +149,7 @@ Resources:
    Type: 'AWS::ApiGateway::BasePathMapping'
    Properties:
      DomainName: !Ref MyDomainName
-     RestApiId: !Ref ApiGatewayApi
- 
-  apiDNS:
-    Type: AWS::Route53::RecordSetGroup
-    Properties:
-      HostedZoneId: ${{ secrets.HOSTED_ZONE_ID }}
-      RecordSets:
-        - Name: api.yatidole.com
-          Type: A
-          AliasTarget:
-            HostedZoneId: !GetAtt MyDomainName.RegionalHostedZoneId
-            DNSName: !GetAtt MyDomainName.RegionalDomainName    
+     RestApiId: !Ref ApiGatewayApi    
 
   CFDNSOne:
     Type: AWS::Route53::RecordSetGroup
