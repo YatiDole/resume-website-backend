@@ -8,7 +8,7 @@ iamRoleStatements:
         - dynamodb:Scan
         - dynamodb:UpdateItem
         - dynamodb:PutItem
-      Resource: "arn:aws:dynamodb:*:*:table/'visitor_counter'"
+      Resource: "arn:aws:dynamodb:*:*:table/visitor_counter"
 
 Resources:
 
@@ -95,7 +95,7 @@ Resources:
         getCounter:
           Type: Api
           Properties:
-            Path: /getVisitorCounter
+            Path: /get-visitor-count
             Method: get
             RestApiId: !Ref ApiGatewayApi
 
@@ -142,6 +142,14 @@ Resources:
             DNSName: !GetAtt myDistribution.DomainName
 
 Outputs:
-  HelloWorldApi:
+  VisitorCounterApi:
     Description: "API Gateway endpoint URL for Count Function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/count/"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/get-visitor-count/"
+
+  CloudResumeFunction:
+    Description: "Visitor count Lambda Function ARN"
+    Value: !GetAtt CloudResumeFunction.Arn
+  
+  VisitorCountFunctionIamRole:
+    Description: "Implicit IAM Role created for visitor count function"
+    Value: !GetAtt VisitorCountFunctionRole.Arn
