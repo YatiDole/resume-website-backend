@@ -10,10 +10,12 @@ jobs:
     steps:
     - name: Checkout branch
       uses: actions/checkout@v2
+
     - name: Set Up Python
       uses: actions/setup-python@v2
       with:
         python-version: 3.8
+
     - name: Install moto boto3
       run: |
         python -m pip install --upgrade pip
@@ -29,9 +31,9 @@ jobs:
 
     - name: run test
       run: python3 Lambda/testcounter.py
-      
+
     - name: SAM BUILD
-      uses: youyo/aws-sam-action@v2.0.1
+      uses: youyo/aws-sam-action/python3.8@main
       with:
        sam_command: build
       env:
@@ -41,7 +43,7 @@ jobs:
       
       
     - name: SAM DEPLOY
-      uses: youyo/aws-sam-action@v2.0.1
+      uses: youyo/aws-sam-action/python3.8@main
       with:
        sam_command: 'deploy --stack-name sam-app --no-fail-on-empty-changeset --resolve-s3 --capabilities CAPABILITY_IAM'
       env:
