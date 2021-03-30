@@ -1,63 +1,49 @@
-from counter import *
-
-import unittest
-import boto3
-import botocore
 from moto import mock_dynamodb2
+import boto3
+import os
+import unittest
+
+def aws_credentials():
+    #Mocked AWS Credentials for moto
+    os.environ['AWS_ACCESS_KEY_ID'] = 'testing'
+    os.environ['AWS_SECRET_ACCESS_KEY'] = 'testing'
+    os.environ['AWS_SECURITY_TOKEN'] = 'testing'
+    os.environ['AWS_SESSION_TOKEN'] = 'testing'
+    os.environ['TABLE_NAME'] = 'testing'
+    os.environ['AWS_DEFAULT_REGION'] = 'us-east-1'
 
 @mock_dynamodb2
-class TestDynamoDB(unittest.TestCase):
-
-
-    def setUp(self):
-        #First check if table already exists. If it already exists that mean we connected to real AWS env and not mock.
-        try:
-             dynamodb = boto3.resource(
-                "dynamodb")
-             dynamodb.meta.client.describe_table(TableName='visitor_counter')
-        except botocore.exceptions.ClientError:
-            pass
-        else:
-            err = "{Table} should not exist.".format(Table='visitor_counter')
-            raise EnvironmentError(err)
-        
-        table_name = 'visitor_counter'
-        dynamodb = boto3.resource('dynamodb', 'us-east-1')
-
-        table = dynamodb.create_table(
-            TableName=table_name,
-            KeySchema=[
-                {
-                    'AttributeName': 'pagename',
-                    'KeyType': 'HASH'
-                },
-            ],
-            AttributeDefinitions=[
-                {
-                    'AttributeName': 'pagename',
-                    'AttributeType': 'S'
-                },
-
-            ],
-            ProvisionedThroughput={
-                'ReadCapacityUnits': 5,
-                'WriteCapacityUnits': 5
-            }
+class TestLambdaDDB(unittest.TestCase):
+    def test_handler(self):
+        from counter import lambda_handler
+        # Create dynamodb boto3 object
+        dynamodb = boto3.client('dynamodb')
+        # Get dynamodb table name from env
+        ddbTableName = os.environ['TABLE_NAME']
+    
+        # Create mock table
+        dynamodb.create_table( 
+          TableName = ddbTableName,
+          BillingMode='PAY_PER_REQUEST',
+          AttributeDefinitions=[
+              {
+                'AttributeName': 'id',
+                'AttributeType': 'S'
+              },
+        ],
+          KeySchema=[
+            {
+                'AttributeName': 'id',
+                'KeyType': 'HASH'
+            },
+          ]
         )
-
-    def event():
-        pass
-
-    def context():
-        pass
        
-    def test_getCounter(self):
-        value1 = getCounter(self.event, self.context);
-        json_str =  json.dumps(value1, cls=DecimalEncoder)
-        resp_dict = json.loads(json_str)
-        self.assertTrue(int(resp_dict['body']) > 0);
-        self.assertEqual(int(resp_dict['body']), 1);
+        LambdaResponse = lambda_handler(0,0)
+        print("Lambda response: ", LambdaResponse)
+        self.assertEqual(200, LambdaResponse['statusCode'])
+    
 
-
-if __name__ == '__main__': 
-    unittest.main()
+if __name__ == '__main__':
+  aws_credentials()
+  unittest.main()
