@@ -2,7 +2,14 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
   Cloud Resume Application
-  
+iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - dynamodb:Scan
+        - dynamodb:UpdateItem
+        - dynamodb:PutItem
+      Resource: "arn:aws:dynamodb:*:*:table/'visitor_counter'"
+
 Resources:
 
   myDynamoDBTable: 
@@ -81,9 +88,6 @@ Resources:
       Handler: counter.getCounter
       Runtime: python3.8
       CodeUri: ./Lambda
-      Policies:
-      # Give DynamoDB Full Access to your Lambda Function
-      - AmazonDynamoDBFullAccess
       Events:
         getCounter:
           Type: Api
