@@ -17,7 +17,7 @@ Resources:
           Properties:
             Path: /get-visitor-count
             Method: get
-            RestApiId: !Ref VisitorsTable
+            RestApiId: !Ref ApiGatewayApi
 
   myDynamoDBTable: 
     Type: AWS::DynamoDB::Table
