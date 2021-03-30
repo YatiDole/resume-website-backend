@@ -7,6 +7,8 @@ Resources:
   myDynamoDBTable: 
     Type: AWS::DynamoDB::Table
     Properties:
+      TableName: "visitor_counter"
+
       AttributeDefinitions: 
         - 
           AttributeName: "pagename"
@@ -16,19 +18,10 @@ Resources:
         - 
           AttributeName: "pagename"
           KeyType: "HASH"
-      
-      TableName: "visitor_counter"
+           
       ProvisionedThroughput: 
             ReadCapacityUnits: "5"
             WriteCapacityUnits: "5"
-
-  MyWebsite:
-    Type: AWS::S3::Bucket
-    Properties:
-      AccessControl: PublicRead
-      WebsiteConfiguration:
-        IndexDocument: index.html
-      BucketName: ${{ secrets.AWS_S3_BUCKET }}
 
   myDistribution:
     Type: AWS::CloudFront::Distribution
