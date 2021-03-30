@@ -51,7 +51,7 @@ Resources:
           - GET
           - HEAD
           - OPTIONS
-          TargetOriginId: myS3origin
+          TargetOriginId: myS3Origin
           ForwardedValues:
             QueryString: 'false'
             Cookies:
