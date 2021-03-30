@@ -33,7 +33,7 @@ jobs:
       run: python3 Lambda/testcounter.py
 
     - name: SAM BUILD
-      uses: youyo/aws-sam-action/python3.8@main
+      uses: youyo/aws-sam-action/python3.8@master
       with:
        sam_command: build
       env:
@@ -43,7 +43,7 @@ jobs:
       
       
     - name: SAM DEPLOY
-      uses: youyo/aws-sam-action/python3.8@main
+      uses: youyo/aws-sam-action/python3.8@master
       with:
        sam_command: 'deploy --stack-name sam-app --no-fail-on-empty-changeset --resolve-s3 --capabilities CAPABILITY_IAM'
       env:
