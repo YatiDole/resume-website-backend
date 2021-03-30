@@ -6,5 +6,5 @@ stack_name = "sam-app"
 s3_bucket = "resume-sam-deployment-bucket"
 s3_prefix = "sam-app"
 region = "us-east-1"
-confirm_changeset = False
+confirm_changeset = false
 capabilities = "CAPABILITY_IAM"
