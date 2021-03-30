@@ -10,7 +10,9 @@ Resources:
     Properties:
       Handler: counter.getCounter
       Runtime: python3.8
-      Policies: 
+      Role: !GetAtt IAMRole.Arn
+    DependsOn:
+      - myDynamoDBTable
       CodeUri: ./Lambda
       Events:
         Api:
