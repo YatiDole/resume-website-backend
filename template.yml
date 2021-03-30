@@ -4,6 +4,24 @@ Description: >
   Cloud Resume Application
 Resources:
 
+  myDynamoDBTable: 
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions: 
+        - 
+          AttributeName: "pagename"
+          AttributeType: "S"
+       
+      KeySchema: 
+        - 
+          AttributeName: "pagename"
+          KeyType: "HASH"
+      
+      TableName: "visitor_counter"
+      ProvisionedThroughput: 
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
+
   MyWebsite:
     Type: AWS::S3::Bucket
     Properties:
@@ -45,24 +63,6 @@ Resources:
         ViewerCertificate:
            AcmCertificateArn: ${{ secrets.ARN_CERTIFICATE }}
            SslSupportMethod: sni-only
-
-    myDynamoDBTable: 
-    Type: AWS::DynamoDB::Table
-    Properties:
-      AttributeDefinitions: 
-        - 
-          AttributeName: "pagename"
-          AttributeType: "S"
-       
-      KeySchema: 
-        - 
-          AttributeName: "pagename"
-          KeyType: "HASH"
-      
-      TableName: "visitor_counter"
-      ProvisionedThroughput: 
-            ReadCapacityUnits: "5"
-            WriteCapacityUnits: "5"
 
   ApiGatewayApi:
     Type: AWS::Serverless::Api
