@@ -1,5 +1,4 @@
 from counter import *
-
 import unittest
 import boto3
 import botocore
@@ -58,7 +57,5 @@ class TestDynamoDB(unittest.TestCase):
         self.assertTrue(int(resp_dict['body']) > 0);
         self.assertEqual(int(resp_dict['body']), 1);
 
-
 if __name__ == '__main__':
-    
     unittest.main()
