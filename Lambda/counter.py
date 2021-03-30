@@ -1,62 +1,41 @@
-import boto3
 import json
-import decimal
+import os
+import boto3
 
-# Helper class to convert a DynamoDB item to JSON.
-class DecimalEncoder(json.JSONEncoder):
-    def default(self, o):
-        if isinstance(o, decimal.Decimal):
-            if o % 1 > 0:
-                return float(o)
-            else:
-                return int(o)
-        return super(DecimalEncoder, self).default(o)
-
-def updateCounter():
-    dynamodb = boto3.resource('dynamodb')
-
-    table = dynamodb.Table('visitor_counter')
+#os.environ['TABLE_NAME'] = 'testing'
+#print(os.environ["TABLE_NAME"])
+    
+def lambda_handler(event,context):  #event, context
+    table_name = os.environ["TABLE_NAME"]
+    table = boto3.resource("dynamodb").Table(table_name)
+    
     response = table.update_item(
         Key={
-            'pagename': 'homepage'
+            'id': 'Count'
         },
-        AttributeUpdates={
-            'counter': {
-                'Value': 1,
-                'Action': 'ADD'
-            }
-            }
-        )
-
-def getCounter(event, context):
-    updateCounter()
-    # Get the service resource.
-    dynamodb = boto3.resource('dynamodb')
-
-    table = dynamodb.Table('visitor_counter')
-    response = table.get_item(
-   Key={
-      'pagename': 'homepage'
-     }
+        #UpdateExpression="set Amount = Amount + :inc", 
+        UpdateExpression='ADD Amount :inc',  
+        ExpressionAttributeValues={
+            ':inc': 1
+        },
+        ReturnValues="UPDATED_NEW"
     )
-    item = response['Item']
-    print(item)
-    json_str =  json.dumps(item, cls=DecimalEncoder)
-
-    #using json.loads will turn your data into a python dictionary
-    resp_dict = json.loads(json_str)
-    print (resp_dict.get('counter'))
-    return {
-        'statusCode': 200,
-        'headers': {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+    # response is equal to the DB Count+1 
+    
+    # turn response into a variable
+    responseBody = json.dumps({"visitorCount": int(float(response["Attributes"]["Amount"]))})
+    
+     
+    apiResponse = {
+    "isBase64Encoded": False,
+    "statusCode": 200,
+    "body": responseBody,
+    "headers": {
+        "Access-Control-Allow-Headers" : "Content-Type,X-Amz-Date,Authorization,X-Api-Key,x-requested-with",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,OPTIONS" 
         },
-        'body': 
-            str(resp_dict.get('counter'))
-        ,
-        "isBase64Encoded": False
     }
 
-if __name__ == "__main__":
-    getCounter()
+    # Return api response object
+    return apiResponse

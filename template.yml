@@ -2,34 +2,29 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
   Cloud Resume Application
-iamRoleStatements:
-    - Effect: "Allow"
-      Action:
-        - dynamodb:Scan
-        - dynamodb:UpdateItem
-        - dynamodb:PutItem
-      Resource: "arn:aws:dynamodb:*:*:table/visitor_counter"
 
 Resources:
 
-  myDynamoDBTable: 
-    Type: AWS::DynamoDB::Table
+  CloudResumeFunction:
+    Type: AWS::Serverless::Function
     Properties:
+      Handler: counter.lambda_handler
+      Runtime: python3.8
+      CodeUri: ./Lambda
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /get-visitor-count
+            Method: get
+            RestApiId: !Ref VisitorsTable
 
-      AttributeDefinitions: 
-        - 
-          AttributeName: "pagename"
-          AttributeType: "S"
-       
-      KeySchema: 
-        - 
-          AttributeName: "pagename"
-          KeyType: "HASH"
-
-      TableName: "visitor_counter"     
-      ProvisionedThroughput: 
-            ReadCapacityUnits: "5"
-            WriteCapacityUnits: "5"
+  VisitorsTable: 
+    Type: AWS::DynamoDB::SimpleTable
+    Properties:
+      Primary key: 
+        Name: id
+        Type: String
 
   myDistribution:
     Type: AWS::CloudFront::Distribution
@@ -82,22 +77,7 @@ Resources:
               Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
               Access-Control-Allow-Origin: "'*'"
 
-  CloudResumeFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Handler: counter.getCounter
-      Runtime: python3.8
-      CodeUri: ./Lambda
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: visitor_counter
-      Events:
-        getCounter:
-          Type: Api
-          Properties:
-            Path: /get-visitor-count
-            Method: get
-            RestApiId: !Ref ApiGatewayApi
+
 
   MyDomainName:
    Type: 'AWS::ApiGateway::DomainName'
@@ -146,10 +126,10 @@ Outputs:
     Description: "API Gateway endpoint URL for Count Function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/get-visitor-count/"
 
-  CloudResumeFunction:
-    Description: "Visitor count Lambda Function ARN"
-    Value: !GetAtt CloudResumeFunction.Arn
+#  CloudResumeFunction:
+#    Description: "Visitor count Lambda Function ARN"
+#    Value: !GetAtt CloudResumeFunction.Arn
   
-  VisitorCountFunctionIamRole:
-    Description: "Implicit IAM Role created for visitor count function"
-    Value: !GetAtt VisitorCountFunctionRole.Arn
+#  VisitorCountFunctionIamRole:
+#    Description: "Implicit IAM Role created for visitor count function"
+#   Value: !GetAtt VisitorCountFunctionRole.Arn
