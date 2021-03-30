@@ -88,6 +88,9 @@ Resources:
       Handler: counter.getCounter
       Runtime: python3.8
       CodeUri: ./Lambda
+       Policies:
+        - DynamoDBCrudPolicy:
+            TableName: visitor_counter
       Events:
         getCounter:
           Type: Api
