@@ -10,6 +10,7 @@ Resources:
     Properties:
       Handler: counter.getCounter
       Runtime: python3.8
+      Policies: 
       CodeUri: ./Lambda
       Events:
         Api:
@@ -36,7 +37,9 @@ Resources:
       ProvisionedThroughput: 
             ReadCapacityUnits: "5"
             WriteCapacityUnits: "5"
-    
+    DependsOn:
+      - IAMRole
+
   ApiGatewayApi:
     Type: AWS::Serverless::Api
     Properties:
@@ -93,6 +96,39 @@ Resources:
         ViewerCertificate:
            AcmCertificateArn: ${{ secrets.ARN_CERTIFICATE }}
            SslSupportMethod: sni-only
+
+  IAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - 'sts:AssumeRole'
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com  
+      Policies:
+        - PolicyName: Policy_api-lambda-db
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+			        - Effect: Allow
+                Action:
+                  - 'dynamodb:GetItem'
+                  - 'dynamodb:UpdateItem'
+				          - 'dynamodb:Scan'
+				          - 'dynamodb:Query'
+				          - 'dynamodb:DeleteItem'
+				          - 'dynamodb:PutItem'
+                Resource: "*"
+			        - Effect: Allow
+                Action:
+                  - 'logs:CreateLogStream'
+                  - 'logs:CreateLogGroup'
+				          - 'logs:PutLogEvents'
+				        Resource: "*"
 
   MyDomainName:
    Type: 'AWS::ApiGateway::DomainName'
