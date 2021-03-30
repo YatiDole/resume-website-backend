@@ -2,12 +2,13 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
   Cloud Resume Application
+  
 Resources:
 
   myDynamoDBTable: 
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: "visitor_counter"
+
       AttributeDefinitions: 
         - 
           AttributeName: "pagename"
@@ -17,7 +18,8 @@ Resources:
         - 
           AttributeName: "pagename"
           KeyType: "HASH"
-           
+
+      TableName: "visitor_counter"     
       ProvisionedThroughput: 
             ReadCapacityUnits: "5"
             WriteCapacityUnits: "5"
@@ -42,7 +44,7 @@ Resources:
           - GET
           - HEAD
           - OPTIONS
-          TargetOriginId: mys3origin
+          TargetOriginId: myS3origin
           ForwardedValues:
             QueryString: 'false'
             Cookies:
@@ -76,9 +78,9 @@ Resources:
   CloudResumeFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: Lambda/
       Handler: counter.getCounter
       Runtime: python3.8
+      CodeUri: ./Lambda
       Policies:
       # Give DynamoDB Full Access to your Lambda Function
       - AmazonDynamoDBFullAccess
@@ -131,3 +133,8 @@ Resources:
           Type: A
           AliasTarget:
             DNSName: !GetAtt myDistribution.DomainName
+
+Outputs:
+  HelloWorldApi:
+    Description: "API Gateway endpoint URL for Count Function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/count/"
