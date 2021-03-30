@@ -31,19 +31,20 @@ jobs:
       run: python3 Lambda/testcounter.py
       
     - name: SAM BUILD
-      uses: tkt-actions/aws-sam-cli@v1
+      uses: youyo/aws-sam-action@v2.0.1
+      with:
+       sam_command: build
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-      with:
-        cmd: "sam build -t template.yml --debug"
+      
       
     - name: SAM DEPLOY
-      uses: tkt-actions/aws-sam-cli@v1
+      uses: youyo/aws-sam-action@v2.0.1
+      with:
+       sam_command: 'deploy --stack-name sam-app --no-fail-on-empty-changeset --resolve-s3 --capabilities CAPABILITY_IAM'
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-      with:
-        cmd: "sam deploy"
