@@ -14,7 +14,7 @@ Resources:
       CodeUri: ./Lambda
     DependsOn: myDynamoDBTable
       Events:
-        Api:
+        getCounter:
           Type: Api
           Properties:
             Path: /get-visitor-count
