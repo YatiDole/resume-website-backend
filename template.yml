@@ -8,19 +8,18 @@ Resources:
   CloudResumeFunction:
     Type: AWS::Serverless::Function
     Properties:
+      CodeUri: Lambda/
       Handler: counter.getCounter
       Runtime: python3.8
       Role: !GetAtt IAMRole.Arn
-      CodeUri: ./Lambda
-    DependsOn: myDynamoDBTable
       Events:
         getCounter:
           Type: Api
           Properties:
-            Path: /get-visitor-count
+            Path: /getVisitorCounter
             Method: get
             RestApiId: !Ref ApiGatewayApi
-
+    DependsOn: myDynamoDBTable
   myDynamoDBTable: 
     Type: AWS::DynamoDB::Table
     Properties: 
@@ -179,12 +178,4 @@ Resources:
 Outputs:
   VisitorCounterApi:
     Description: "API Gateway endpoint URL for Count Function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/get-visitor-count/"
-
-#  CloudResumeFunction:
-#    Description: "Visitor count Lambda Function ARN"
-#    Value: !GetAtt CloudResumeFunction.Arn
-  
-#  VisitorCountFunctionIamRole:
-#    Description: "Implicit IAM Role created for visitor count function"
-#   Value: !GetAtt VisitorCountFunctionRole.Arn
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/getVisitorCounter"
