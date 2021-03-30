@@ -59,6 +59,5 @@ class TestDynamoDB(unittest.TestCase):
         self.assertEqual(int(resp_dict['body']), 1);
 
 
-if __name__ == '__main__':
-    
+if __name__ == '__main__': 
     unittest.main()
