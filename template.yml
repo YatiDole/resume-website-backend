@@ -104,7 +104,7 @@ Resources:
         Version: 2012-10-17
         Statement:
           - Action:
-              - 'sts:AssumeRole'
+             - 'sts:AssumeRole'
             Effect: Allow
             Principal:
               Service:
@@ -114,21 +114,21 @@ Resources:
           PolicyDocument:
             Version: 2012-10-17
             Statement:
-			        - Effect: Allow
-                Action:
+            Effect: Allow
+            Action:
                   - 'dynamodb:GetItem'
                   - 'dynamodb:UpdateItem'
-				          - 'dynamodb:Scan'
-				          - 'dynamodb:Query'
-				          - 'dynamodb:DeleteItem'
-				          - 'dynamodb:PutItem'
-                Resource: "*"
-			        - Effect: Allow
-                Action:
+                  - 'dynamodb:Scan'
+                  - 'dynamodb:Query'
+                  - 'dynamodb:DeleteItem'
+                  - 'dynamodb:PutItem'
+            Resource: "*"
+            Effect: Allow
+            Action:
                   - 'logs:CreateLogStream'
                   - 'logs:CreateLogGroup'
-				          - 'logs:PutLogEvents'
-				        Resource: "*"
+                  - 'logs:PutLogEvents'
+            Resource: "*"
 
   MyDomainName:
    Type: 'AWS::ApiGateway::DomainName'
