@@ -11,9 +11,8 @@ Resources:
       Handler: counter.getCounter
       Runtime: python3.8
       Role: !GetAtt IAMRole.Arn
-    DependsOn:
-      - myDynamoDBTable
       CodeUri: ./Lambda
+    DependsOn: myDynamoDBTable
       Events:
         Api:
           Type: Api
