@@ -44,32 +44,32 @@ Resources:
         Type: String
 
 # Lambda role for lambda function to access DynamoDB
-  IAMRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-             - 'sts:AssumeRole'
-      Policies:
-        - PolicyName: dynamodbAccessRole
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-            Resource: !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${myDynamoDBTable}"  
-            Effect: Allow
-            Action:
-                  - 'dynamodb:GetItem'
-                  - 'dynamodb:UpdateItem'
-                  - 'dynamodb:Scan'
-                  - 'dynamodb:Query'
-                  - 'dynamodb:DeleteItem'
-                  - 'dynamodb:PutItem'
+#  IAMRole:
+#    Type: AWS::IAM::Role
+#    Properties:
+#      AssumeRolePolicyDocument:
+#        Version: 2012-10-17
+#        Statement:
+#          - Effect: Allow
+#            Principal:
+#              Service:
+#                - lambda.amazonaws.com
+#            Action:
+#             - 'sts:AssumeRole'
+#      Policies:
+#        - PolicyName: dynamodbAccessRole
+#          PolicyDocument:
+#            Version: 2012-10-17
+#            Statement:
+#            Resource: !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${myDynamoDBTable}"  
+#            Effect: Allow
+#            Action:
+#                  - 'dynamodb:GetItem'
+#                  - 'dynamodb:UpdateItem'
+#                  - 'dynamodb:Scan'
+#                  - 'dynamodb:Query'
+#                  - 'dynamodb:DeleteItem'
+#                  - 'dynamodb:PutItem'
 
 
 #  MyDomainName:
