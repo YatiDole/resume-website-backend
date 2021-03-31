@@ -30,7 +30,7 @@ Resources:
     Type: AWS::Serverless::SimpleTable
     Properties:
       PrimaryKey:
-        Name: id
+        Name: pagename
         Type: String
     DependsOn:
       - IAMRole
@@ -158,7 +158,7 @@ Resources:
        Name: !Sub "api.${{ secrets.DOMAIN_NAME }}"
        TTL: 300
        ResourceRecords:
-         - !Sub "https://${ApiGatewayApi}.execute-api.${AWS::Region}.amazonaws.com/prod"
+         - !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
        Type: CNAME
        
   CFDNSOne:
@@ -170,6 +170,7 @@ Resources:
           Type: A
           AliasTarget:
             DNSName: !GetAtt myDistribution.DomainName
+
   CFDNSTwo:
     Type: AWS::Route53::RecordSetGroup
     Properties:
