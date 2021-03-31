@@ -16,6 +16,9 @@ Resources:
       CodeUri: Lambda/
       Handler: counter.getCounter
       Runtime: python3.8
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref myDynamoDBTable
       Role: !GetAtt IAMRole.Arn
       Events:
         getCounter:
@@ -189,3 +192,7 @@ Outputs:
   visitCountFunction:
     Description: "Count Function ARN"
     Value: !GetAtt visitCountFunction.Arn
+
+  IAMRole:
+    Description: "Implicit IAM Role created for Cloud Resume Count function"
+    Value: !GetAtt IAMRole.Arn
