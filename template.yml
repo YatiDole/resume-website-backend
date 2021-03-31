@@ -17,9 +17,6 @@ Resources:
       Handler: counter.getCounter
       Runtime: python3.8
       Role: !GetAtt IAMRole.Arn
-      Environments:
-        Variables:
-          databaseName: !Ref myDynamoDBTable
       Events:
         getCounter:
           Type: Api
@@ -28,26 +25,17 @@ Resources:
             Method: get
             RestApiId: !Ref ApiGatewayApi
 
-  myDynamoDBTable: 
-    Type: AWS::DynamoDB::Table
-    Properties: 
-      AttributeDefinitions: 
-        - 
-          AttributeName: "pagename"
-          AttributeType: "S"
-       
-      KeySchema: 
-        - 
-          AttributeName: "pagename"
-          KeyType: "HASH"
-      
-      TableName: "visitor_counter"
-      ProvisionedThroughput: 
-            ReadCapacityUnits: "5"
-            WriteCapacityUnits: "5"
+# DynamoDB Table
+  myDynamoDBTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: id
+        Type: String
     DependsOn:
       - IAMRole
 
+# API-Gateway
   ApiGatewayApi:
     Type: AWS::Serverless::Api
     Properties:
@@ -65,12 +53,14 @@ Resources:
               Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
               Access-Control-Allow-Origin: "'*'"
 
+# CloudFront OAI              
   cloudfrontoriginaccessidentity:
     Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
     Properties:
       CloudFrontOriginAccessIdentityConfig: ${{ secrets.CLOUDFRONT_OAI }}
       Comment: This is origin access identity
   
+      
   apiDNS:
     Type: AWS::Route53::RecordSetGroup
     Properties:
