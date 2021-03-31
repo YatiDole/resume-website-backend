@@ -2,16 +2,24 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
   Cloud Resume Application
+Parameters:
+  DomainName:
+    Description: "The name of the website this stack will be deployed for"
+    Type: String
+    Default: "yatidole.com"
 
 Resources:
-
-  CloudResumeFunction:
+#lambda function 
+  visitCountFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: Lambda/
       Handler: counter.getCounter
       Runtime: python3.8
       Role: !GetAtt IAMRole.Arn
+      Environments:
+        Variables:
+          databaseName: !Ref myDynamoDBTable
       Events:
         getCounter:
           Type: Api
@@ -19,7 +27,6 @@ Resources:
             Path: /getVisitorCounter
             Method: get
             RestApiId: !Ref ApiGatewayApi
-    DependsOn: myDynamoDBTable
 
   myDynamoDBTable: 
     Type: AWS::DynamoDB::Table
@@ -74,7 +81,8 @@ Resources:
           AliasTarget:
             HostedZoneId: !GetAtt MyDomainName.RegionalHostedZoneId
             DNSName: !GetAtt MyDomainName.RegionalDomainName
-            
+
+# CloudFront Distribution which is able to access S3
   myDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
@@ -109,23 +117,25 @@ Resources:
            AcmCertificateArn: ${{ secrets.ARN_CERTIFICATE }}
            SslSupportMethod: sni-only
 
+# Lambda role for lambda function to access DynamoDB
   IAMRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
-          - Action:
-             - 'sts:AssumeRole'
-            Effect: Allow
+          - Effect: Allow
             Principal:
               Service:
-                - lambda.amazonaws.com  
+                - lambda.amazonaws.com
+            Action:
+             - 'sts:AssumeRole'
       Policies:
-        - PolicyName: Policy_api-lambda-db
+        - PolicyName: dynamodbAccessRole
           PolicyDocument:
             Version: 2012-10-17
             Statement:
+            Resource: !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${myDynamoDBTable}"  
             Effect: Allow
             Action:
                   - 'dynamodb:GetItem'
@@ -134,12 +144,12 @@ Resources:
                   - 'dynamodb:Query'
                   - 'dynamodb:DeleteItem'
                   - 'dynamodb:PutItem'
-            Resource: "*"
+
 
   MyDomainName:
    Type: 'AWS::ApiGateway::DomainName'
    Properties:
-    DomainName: api.yatidole.com
+    DomainName: ${{ secrets.DOMAIN_NAME }}
     EndpointConfiguration:
      Types: 
       - REGIONAL
@@ -149,8 +159,18 @@ Resources:
    Type: 'AWS::ApiGateway::BasePathMapping'
    Properties:
      DomainName: !Ref MyDomainName
-     RestApiId: !Ref ApiGatewayApi    
-
+     RestApiId: !Ref ApiGatewayApi
+    
+  DNSRecordAPIGateway:
+     Type: AWS::Route53::RecordSet
+     Properties:
+       HostedZoneId : !Ref HostedZone
+       Name: !Sub "api.${{ secrets.DOMAIN_NAME }}"
+       TTL: 300
+       ResourceRecords:
+         - !Sub "https://${ApiGatewayApi}.execute-api.${AWS::Region}.amazonaws.com/prod"
+       Type: CNAME
+       
   CFDNSOne:
     Type: AWS::Route53::RecordSetGroup
     Properties:
@@ -171,6 +191,10 @@ Resources:
             DNSName: !GetAtt myDistribution.DomainName
 
 Outputs:
-  VisitorCounterApi:
+  VisitorCounterApiEndpoint :
     Description: "API Gateway endpoint URL for Count Function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/getVisitorCounter"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/getVisitorCounter/"
+  
+  visitCountFunction:
+    Description: "Count Function ARN"
+    Value: !GetAtt visitCountFunction.Arn
