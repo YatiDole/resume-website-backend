@@ -20,26 +20,32 @@ Parameters:
 
 Resources:
 #lambda function 
-  visitCountFunction:
+  get_sites:
     Type: AWS::Serverless::Function
     Properties:
     CodeUri: Lambda/
-    Handler: counter.getCounter
+    Handler: handler.get_sites
     Runtime: python3.8
     Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref myDynamoDBTable
     Role: !GetAtt IAMRole.Arn
     Events:
-      getCounter:
+      get_sites:
         Type: Api
         Properties:
-          Path: /getVisitorCounter
-          Method: post
+          Path: /site
+          Method: ge t
+    Events:
+      update_item:
+        Type: Api
+        Properties:
+          Path:       
 
 # DynamoDB Table
   myDynamoDBTable:
     Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
     Properties:
       TableName: WebsiteVisitCounts
       BillingMode: PAY_PER_REQUEST
