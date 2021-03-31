@@ -30,7 +30,7 @@ jobs:
         aws-region: us-east-1
 
     - name: run test
-      run: python3 Lambda/test_handler.py
+      run: python3 Lambda/pythontest.py
 
     - name: SAM BUILD
       uses: youyo/aws-sam-action/python3.8@master
@@ -45,7 +45,7 @@ jobs:
     - name: SAM DEPLOY
       uses: youyo/aws-sam-action/python3.8@master
       with:
-       sam_command: deploy
+       sam_command: deploy -g
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
