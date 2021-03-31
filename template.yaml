@@ -2,113 +2,55 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
   Cloud Resume Application
+
+Globals:
+  Function:
+    Timeout: 10
+  Api:
+    Cors:
+      AllowMethods: "'*'"
+      AllowHeaders: "'*'"
+      AllowOrigin: "'*'"
+
 Parameters:
   DomainName:
     Description: "The name of the website this stack will be deployed for"
     Type: String
-    Default: "yatidole.com"
+    Default: ${{ secrets.DOMAIN_NAME }}
 
 Resources:
 #lambda function 
   visitCountFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: Lambda/
-      Handler: counter.getCounter
-      Runtime: python3.8
-      Policies:
+    CodeUri: Lambda/
+    Handler: counter.getCounter
+    Runtime: python3.8
+    Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref myDynamoDBTable
-      Role: !GetAtt IAMRole.Arn
-      Events:
-        getCounter:
-          Type: Api
-          Properties:
-            Path: /getVisitorCounter
-            Method: get
-            RestApiId: !Ref ApiGatewayApi
+    Role: !GetAtt IAMRole.Arn
+    Events:
+      getCounter:
+        Type: Api
+        Properties:
+          Path: /getVisitorCounter
+          Method: post
 
 # DynamoDB Table
   myDynamoDBTable:
-    Type: AWS::Serverless::SimpleTable
+    Type: AWS::DynamoDB::Table
     Properties:
-      PrimaryKey:
-        Name: pagename
-        Type: String
+      TableName: WebsiteVisitCounts
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: "Website"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "Website"
+          KeyType: "HASH"
     DependsOn:
       - IAMRole
-
-# API-Gateway
-  ApiGatewayApi:
-    Type: AWS::Serverless::Api
-    Properties:
-      StageName: Prod
-      Cors:
-        AllowMethods: "'OPTIONS,POST,GET,PUT,DELETE'"
-        AllowHeaders: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token,Z-Client-Timezone'"
-        AllowOrigin: "''"
-        MaxAge: "'3600'"
-      GatewayResponses:
-        DEFAULT_4xx:
-          ResponseParameters:
-            Headers:
-              Access-Control-Allow-Methods: "'OPTIONS,POST,GET,PUT,DELETE'"
-              Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
-              Access-Control-Allow-Origin: "'*'"
-
-# CloudFront OAI              
-  cloudfrontoriginaccessidentity:
-    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
-    Properties:
-      CloudFrontOriginAccessIdentityConfig: ${{ secrets.CLOUDFRONT_OAI }}
-      Comment: This is origin access identity
-  
-      
-  apiDNS:
-    Type: AWS::Route53::RecordSetGroup
-    Properties:
-      HostedZoneId: ${{ secrets.HOSTED_ZONE_ID }}
-      RecordSets:
-        - Name: api.yatidole.com
-          Type: A
-          AliasTarget:
-            HostedZoneId: !GetAtt MyDomainName.RegionalHostedZoneId
-            DNSName: !GetAtt MyDomainName.RegionalDomainName
-
-# CloudFront Distribution which is able to access S3
-  myDistribution:
-    Type: AWS::CloudFront::Distribution
-    Properties:
-      DistributionConfig:
-        Origins:
-        - DomainName: ${{ secrets.DOMAIN_NAME }}
-          Id: myS3Origin
-          S3OriginConfig:
-            OriginAccessIdentity: !Join [ "", [ "origin-access-identity/cloudfront/", !Ref cloudfrontoriginaccessidentity ] ]
-        Enabled: 'true'
-        Comment: Some comment
-        DefaultRootObject: index.html
-        Aliases:
-        - yatidole.com
-        - www.yatidole.com
-        DefaultCacheBehavior:
-          AllowedMethods:
-          - GET
-          - HEAD
-          - OPTIONS
-          TargetOriginId: myS3Origin
-          ForwardedValues:
-            QueryString: 'false'
-            Cookies:
-              Forward: none
-          ViewerProtocolPolicy: redirect-to-https
-          DefaultTTL: 60
-          MaxTTL: 120
-          MinTTL: 30
-        PriceClass: PriceClass_200
-        ViewerCertificate:
-           AcmCertificateArn: ${{ secrets.ARN_CERTIFICATE }}
-           SslSupportMethod: sni-only
 
 # Lambda role for lambda function to access DynamoDB
   IAMRole:
@@ -148,6 +90,7 @@ Resources:
       - REGIONAL
     RegionalCertificateArn:  ${{ secrets.ARN_CERTIFICATE }}
 
+
   myMapping:
    Type: 'AWS::ApiGateway::BasePathMapping'
    Properties:
@@ -163,26 +106,6 @@ Resources:
        ResourceRecords:
          - !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
        Type: CNAME
-       
-  CFDNSOne:
-    Type: AWS::Route53::RecordSetGroup
-    Properties:
-      HostedZoneId: ${{ secrets.HOSTED_ZONE_ID }}
-      RecordSets:
-        - Name: yatidole.com
-          Type: A
-          AliasTarget:
-            DNSName: !GetAtt myDistribution.DomainName
-
-  CFDNSTwo:
-    Type: AWS::Route53::RecordSetGroup
-    Properties:
-      HostedZoneId: ${{ secrets.HOSTED_ZONE_ID }}
-      RecordSets:
-        - Name: www.yatidole.com
-          Type: A
-          AliasTarget:
-            DNSName: !GetAtt myDistribution.DomainName
 
 Outputs:
   VisitorCounterApiEndpoint :
