@@ -6,11 +6,9 @@ from app import lambda_handler
 
 def testCreds():  
   DEFAULT_REGION = "us-east-1"  
-  os.environ['AWS_ACCESS_KEY_ID'] = 'foobar'
-  os.environ['AWS_SECRET_ACCESS_KEY'] = 'foobar'
-  os.environ['AWS_SECURITY_TOKEN'] = 'foobar'
-  os.environ['AWS_SESSION_TOKEN'] = 'foobar' 
-  os.environ["AWS_REGION"] = DEFAULT_REGION
+  os.environ['AWS_ACCESS_KEY_ID'] = '${{ secrets.AWS_ACCESS_KEY_ID }}'
+  os.environ['AWS_SECRET_ACCESS_KEY'] = '${{ secrets.TABLE_NAME }}'
+  os.environ["AWS_REGION"] = '${{ secrets.AWS_DEFAULT_REGION }}'
  
   os.environ['TABLE_NAME'] = 'table_name' 
 
