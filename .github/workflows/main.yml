@@ -33,18 +33,18 @@ jobs:
       run: python3 Lambda/pythontest.py
 
     - name: Build
-      uses: youyo/aws-sam-action/python3.8@v2
+      uses: TractorZoom/sam-cli-action@master
       with:
-        sam_command: build
+        sam_command: "build"
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
- #       S3_BUCKET: ${{ secrets.S3_BUCKET }}
+#       S3_BUCKET: ${{ secrets.S3_BUCKET }}
     
     - name: SAM DEPLOY
-      uses: youyo/aws-sam-action/python3.8@v2
-        sam_command: 'deploy --no-fail-on-empty-changeset --no-confirm-changeset'
+      uses: TractorZoom/sam-cli-action@master
+        sam_command: "deploy"
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
