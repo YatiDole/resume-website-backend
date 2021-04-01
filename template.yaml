@@ -25,11 +25,12 @@ Resources:
           REGION_NAME: !Ref AWS::Region
       Role: !GetAtt IAMRole.Arn
       Events:
-        getsitesAPI:
+        - http:
+          getsitesAPI:
           Type: Api
           Properties:
-          Path: /count
-          Method: GET
+            Path: /count
+            Method: GET
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref myDynamoDBTable     
