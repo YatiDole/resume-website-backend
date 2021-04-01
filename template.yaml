@@ -7,11 +7,11 @@ Parameters:
   DomainName:
     Description: "The name of the website this stack will be deployed for"
     Type: String
-    Default: ${{ secrets.DOMAIN_NAME }}
+    Default: yatidole.com
 
 Resources:
 #lambda function 
-  samFunction:
+  samfunction:
     Type: AWS::Serverless::Function
     Properties:
       Handler: app.lambda_handler
@@ -25,7 +25,7 @@ Resources:
           REGION_NAME: !Ref AWS::Region
       Role: !GetAtt IAMRole.Arn
       Events:
-        get_sitesAPI:
+        getsitesAPI:
           Type: Api
           Properties:
           Path: /count
@@ -37,7 +37,6 @@ Resources:
 # DynamoDB Table
   myDynamoDBTable:
     Type: AWS::DynamoDB::SimpleTable
-    DeletionPolicy: Retain
     Properties:
       PrimaryKey: 
         Name: id
