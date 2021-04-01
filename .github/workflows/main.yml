@@ -32,7 +32,7 @@ jobs:
     - name: run test
       run: python3 Lambda/pythontest.py
 
-    - name: Build
+    - name: sam build
       uses: TractorZoom/sam-cli-action@master
       with:
         sam_command: "build"
@@ -42,7 +42,7 @@ jobs:
         AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
 #       S3_BUCKET: ${{ secrets.S3_BUCKET }}
     
-    - name: SAM DEPLOY
+    - name: sam deploy
       uses: TractorZoom/sam-cli-action@master
         sam_command: "deploy"
       env:
