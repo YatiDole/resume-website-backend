@@ -43,6 +43,7 @@ jobs:
 #       S3_BUCKET: ${{ secrets.S3_BUCKET }}  
     - name: sam deploy
       uses: TractorZoom/sam-cli-action@master
+      with:
         sam_command: "deploy"
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
