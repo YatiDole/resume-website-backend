@@ -8,7 +8,7 @@ Parameters:
     Description: "The name of the website this stack will be deployed for"
     Type: String
     Default: dn43r3cje2j3p.cloudfront.net
-
+    
 Resources:
 #lambda function 
   samfunction:
@@ -41,6 +41,10 @@ Resources:
         Name: id
         Type: String
 
+Outputs:
+  VisitorCounterApiEndpoint :
+    Description: "API Gateway endpoint URL for samfunction"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/count/"
 # Lambda role for lambda function to access DynamoDB
 #  IAMRole:
 #    Type: AWS::IAM::Role
@@ -96,7 +100,7 @@ Resources:
 #         - !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
 #       Type: CNAME
 
- Outputs:
+Outputs:
   VisitorCounterApiEndpoint :
     Description: "API Gateway endpoint URL for samfunction"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/count/"
