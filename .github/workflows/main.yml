@@ -33,7 +33,7 @@ jobs:
       run: python3 Lambda/pythontest.py
 
     - name: package
-      uses: chriscoffee/aws-sam-action/python3.8@master
+      uses: chriscoffee/sam-github-action@master
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -43,7 +43,7 @@ jobs:
         args: package --s3-bucket ${{ secrets.S3_BUCKET }} --output-template-file template.yaml
       
     - name: SAM DEPLOY
-      uses: chriscoffee/aws-sam-action/python3.8@master
+      uses: chriscoffee/sam-github-action@master
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
