@@ -23,10 +23,8 @@ Resources:
         Variables:
           TABLE_NAME: !Ref myDynamoDBTable
           REGION_NAME: !Ref AWS::Region
-      Role: !GetAtt IAMRole.Arn
       Events:
-        - http:
-          getsitesAPI:
+        getsitesAPI:
           Type: Api
           Properties:
             Path: /count
