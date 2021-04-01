@@ -7,7 +7,7 @@ Parameters:
   DomainName:
     Description: "The name of the website this stack will be deployed for"
     Type: String
-    Default: yatidole.com
+    Default: dn43r3cje2j3p.cloudfront.net
 
 Resources:
 #lambda function 
@@ -96,10 +96,10 @@ Resources:
 #         - !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
 #       Type: CNAME
 
-# Outputs:
-#  VisitorCounterApiEndpoint :
-#    Description: "API Gateway endpoint URL for Count Function"
-#    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/getVisitorCounter/"
+ Outputs:
+  VisitorCounterApiEndpoint :
+    Description: "API Gateway endpoint URL for samfunction"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/count/"
   
 #  visitCountFunction:
 #    Description: "Count Function ARN"
