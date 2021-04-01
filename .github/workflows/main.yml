@@ -44,7 +44,7 @@ jobs:
     
     - name: SAM DEPLOY
       uses: youyo/aws-sam-action/python3.8@v2
-        sam_command: deploy
+        sam_command: 'deploy --no-fail-on-empty-changeset --no-confirm-changeset'
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
